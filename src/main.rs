@@ -8,13 +8,19 @@ fn main() {
         .merge(config::File::with_name("link_scanner"))
         .unwrap();
 
-    check_url_order(settings.get_str("url").unwrap());
+    check_url_order(settings.get_string("url").unwrap());
 
-    check_owner_title(settings.get_str("owner_url").unwrap());
+    check_owner_title(settings.get_string("owner_url").unwrap());
 }
 
 fn check_url_order(url:String) {
-    let resp = reqwest::blocking::get(&url).unwrap();
+    let resp = match reqwest::blocking::get(&url) {
+        Ok(x) => x,
+        Err(x) => {
+            panic!("host check failed: {}", x);
+        },
+    };
+    
     assert!(resp.status().is_success());
 
     let body = resp.text().unwrap();
